@@ -21,12 +21,12 @@ import {
 
 // 1. Firebaseの設定 (Firebase Console > プロジェクト設定 から取得)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyBTP9c00yBtnNv-_uOgvFqZLArXq7Gkn0E",
   authDomain: "anzakicity-d2534.firebaseapp.com",
   projectId: "anzakicity-d2534",
   storageBucket: "anzakicity-d2534.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "80263721257",
+  appId: "1:80263721257:web:a2884a96f1c683b2e34738"
 };
 
 // 2. 初期化
