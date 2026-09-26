@@ -1,12 +1,15 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// ----------------------------------------------------
+
+// ==================================================
 // Supabase設定
-// ----------------------------------------------------
+// ==================================================
 
-const SUPABASE_URL = "https://zuvxowdzzhotesdvorpm.supabase.co";
+const SUPABASE_URL =
+  "https://zuvxowdzzhotesdvorpm.supabase.co";
 
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZaVMrfAPNUSE9eprOwMG7w_OdmrQn9n";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_ZaVMrfAPNUSE9eprOwMG7w_OdmrQn9n";
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -14,400 +17,481 @@ const supabase = createClient(
 );
 
 
-// ----------------------------------------------------
-// DOM要素の取得
-// ----------------------------------------------------
+// ==================================================
+// HTML要素
+// ==================================================
 
-const loggedOutView = document.getElementById("logged-out-view");
-const loggedInView = document.getElementById("logged-in-view");
+const loggedOutView =
+  document.getElementById("logged-out-view");
 
-const loginBtn = document.getElementById("login-btn");
-const logoutBtn = document.getElementById("logout-btn");
+const loggedInView =
+  document.getElementById("logged-in-view");
 
-const userDisplayName = document.getElementById("user-display-name");
+const loginBtn =
+  document.getElementById("login-btn");
 
-const uploadForm = document.getElementById("upload-form");
-const photoFileInput = document.getElementById("photo-file");
-const photoTitleInput = document.getElementById("photo-title");
+const logoutBtn =
+  document.getElementById("logout-btn");
 
-const previewBox = document.getElementById("image-preview");
-const previewImg = document.getElementById("preview-img");
+const userDisplayName =
+  document.getElementById("user-display-name");
 
-const submitBtn = document.getElementById("submit-btn");
-const statusMessage = document.getElementById("status-message");
+const uploadForm =
+  document.getElementById("upload-form");
+
+const photoFileInput =
+  document.getElementById("photo-file");
+
+const photoTitleInput =
+  document.getElementById("photo-title");
+
+const previewBox =
+  document.getElementById("image-preview");
+
+const previewImg =
+  document.getElementById("image-preview-img");
+
+const submitBtn =
+  document.getElementById("submit-btn");
+
+const message =
+  document.getElementById("message");
 
 
-// ----------------------------------------------------
-// 現在のログインユーザー
-// ----------------------------------------------------
+// ==================================================
+// 設定
+// ==================================================
 
-let currentUser = null;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp"
+];
 
 
-// ----------------------------------------------------
-// A. ログイン状態の監視
-// ----------------------------------------------------
+// ==================================================
+// 初期化
+// ==================================================
 
-async function checkUser() {
+init();
 
+async function init() {
+
+  // 現在ログインしているユーザーを確認
   const {
-    data: { user }
-  } = await supabase.auth.getUser();
+    data: { session }
+  } = await supabase.auth.getSession();
 
-  currentUser = user;
+  updateLoginState(session);
 
-  updateLoginView(user);
+
+  // ログイン状態が変わったとき
+  supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      updateLoginState(session);
+    }
+  );
 }
 
 
-// ----------------------------------------------------
-// ログイン画面 / ログイン後画面の切り替え
-// ----------------------------------------------------
+// ==================================================
+// ログイン状態を画面に反映
+// ==================================================
 
-function updateLoginView(user) {
+function updateLoginState(session) {
 
-  if (user) {
-
-    currentUser = user;
-
-    const displayName =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.user_metadata?.preferred_username ||
-      "Discordユーザー";
-
-    userDisplayName.textContent = displayName;
+  if (session && session.user) {
 
     loggedOutView.classList.add("hidden");
     loggedInView.classList.remove("hidden");
 
-  } else {
+    const user = session.user;
 
-    currentUser = null;
+    const metadata = user.user_metadata || {};
+
+    const displayName =
+      metadata.full_name ||
+      metadata.name ||
+      metadata.user_name ||
+      metadata.preferred_username ||
+      user.email ||
+      "Discordユーザー";
+
+    userDisplayName.textContent = displayName;
+
+  } else {
 
     loggedOutView.classList.remove("hidden");
     loggedInView.classList.add("hidden");
+
+    userDisplayName.textContent = "";
   }
 }
 
 
-// ----------------------------------------------------
-// Supabase Authの状態変化を監視
-// ----------------------------------------------------
-
-supabase.auth.onAuthStateChange((event, session) => {
-
-  const user = session?.user ?? null;
-
-  updateLoginView(user);
-
-});
-
-
-// 初回チェック
-checkUser();
-
-
-// ----------------------------------------------------
-// B. Discordログイン
-// ----------------------------------------------------
+// ==================================================
+// Discordログイン
+// ==================================================
 
 loginBtn.addEventListener("click", async () => {
 
-  try {
+  message.textContent = "";
 
-    statusMessage.textContent = "";
-
-    const { error } = await supabase.auth.signInWithOAuth({
+  const { error } =
+    await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: "https://anzaki-mnk.github.io/gallery/"
+        redirectTo:
+          "https://anzaki-mnk.github.io/gallery/"
       }
     });
 
-    if (error) {
-      throw error;
-    }
+  if (error) {
 
-  } catch (error) {
-
-    console.error("ログインエラー:", error);
+    console.error(error);
 
     alert(
-      "ログインに失敗しました: " +
+      "Discordログインに失敗しました。\n" +
       error.message
     );
-
   }
-
 });
 
 
-// ----------------------------------------------------
+// ==================================================
 // ログアウト
-// ----------------------------------------------------
+// ==================================================
 
 logoutBtn.addEventListener("click", async () => {
 
-  try {
+  const { error } =
+    await supabase.auth.signOut();
 
-    const { error } = await supabase.auth.signOut();
+  if (error) {
 
-    if (error) {
-      throw error;
-    }
-
-  } catch (error) {
-
-    console.error("ログアウトエラー:", error);
+    console.error(error);
 
     alert(
-      "ログアウトに失敗しました: " +
+      "ログアウトに失敗しました。\n" +
       error.message
     );
 
+    return;
   }
 
+  location.reload();
 });
 
 
-// ----------------------------------------------------
-// C. 画像プレビュー
-// ----------------------------------------------------
+// ==================================================
+// 写真選択時のプレビュー
+// ==================================================
 
-photoFileInput.addEventListener("change", (e) => {
+photoFileInput.addEventListener(
+  "change",
+  () => {
 
-  const file = e.target.files[0];
+    message.textContent = "";
 
-  if (file) {
+    const file =
+      photoFileInput.files[0];
 
-    const reader = new FileReader();
+    if (!file) {
 
-    reader.onload = (e) => {
+      previewBox.classList.add("hidden");
+      previewImg.src = "";
 
-      previewImg.src = e.target.result;
-
-      previewBox.classList.remove("hidden");
-
-    };
-
-    reader.readAsDataURL(file);
-
-  } else {
-
-    previewBox.classList.add("hidden");
-
-  }
-
-});
-
-
-// ----------------------------------------------------
-// D. 写真アップロード ＆ DB登録
-// ----------------------------------------------------
-
-uploadForm.addEventListener("submit", async (e) => {
-
-  e.preventDefault();
-
-
-  // ---------------------------------------------
-  // 入力値取得
-  // ---------------------------------------------
-
-  const file = photoFileInput.files[0];
-
-  const title = photoTitleInput.value.trim();
-
-
-  // ---------------------------------------------
-  // ログイン確認
-  // ---------------------------------------------
-
-  if (!currentUser) {
-
-    alert("先にDiscordでログインしてください。");
-
-    return;
-  }
-
-
-  // ---------------------------------------------
-  // 必須項目確認
-  // ---------------------------------------------
-
-  if (!file || !title) {
-
-    alert("写真とタイトルを入力してください。");
-
-    return;
-  }
-
-
-  // ---------------------------------------------
-  // ファイル形式確認
-  // ---------------------------------------------
-
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp"
-  ];
-
-  if (!allowedTypes.includes(file.type)) {
-
-    alert(
-      "JPEG、PNG、WebP形式の画像を選択してください。"
-    );
-
-    return;
-  }
-
-
-  // ---------------------------------------------
-  // ファイルサイズ確認
-  // ---------------------------------------------
-
-  if (file.size > 10 * 1024 * 1024) {
-
-    alert("画像サイズは10MB以下にしてください。");
-
-    return;
-  }
-
-
-  // ---------------------------------------------
-  // 二重送信防止
-  // ---------------------------------------------
-
-  submitBtn.disabled = true;
-
-  statusMessage.textContent = "画像を送信中...";
-
-
-  try {
-
-    // -------------------------------------------
-    // 1. Storageに画像をアップロード
-    // -------------------------------------------
-
-    const fileExtension =
-      file.name.split(".").pop().toLowerCase();
-
-    const fileName =
-      `${Date.now()}_${crypto.randomUUID()}.${fileExtension}`;
-
-    const filePath =
-      `${currentUser.id}/${fileName}`;
-
-
-    const {
-      error: uploadError
-    } = await supabase.storage
-      .from("gallery")
-      .upload(filePath, file, {
-        contentType: file.type,
-        upsert: false
-      });
-
-
-    if (uploadError) {
-      throw uploadError;
+      return;
     }
 
 
-    // -------------------------------------------
-    // 2. 公開URLを取得
-    // -------------------------------------------
+    // ファイル形式チェック
+    if (!ALLOWED_TYPES.includes(file.type)) {
 
-    const {
-      data: publicUrlData
-    } = supabase.storage
-      .from("gallery")
-      .getPublicUrl(filePath);
+      alert(
+        "JPEG・PNG・WebP形式の画像を選択してください。"
+      );
 
+      photoFileInput.value = "";
 
-    const imageUrl =
-      publicUrlData.publicUrl;
+      previewBox.classList.add("hidden");
+      previewImg.src = "";
 
-
-    // -------------------------------------------
-    // 3. photosテーブルに保存
-    // -------------------------------------------
-
-    statusMessage.textContent =
-      "投稿情報を登録中...";
-
-
-    const displayName =
-      currentUser.user_metadata?.full_name ||
-      currentUser.user_metadata?.name ||
-      currentUser.user_metadata?.preferred_username ||
-      "Discordユーザー";
-
-
-    const {
-      error: databaseError
-    } = await supabase
-      .from("photos")
-      .insert({
-
-        title: title,
-
-        image_url: imageUrl,
-
-        author_name: displayName,
-
-        author_id: currentUser.id,
-
-        approved: false
-
-      });
-
-
-    if (databaseError) {
-      throw databaseError;
+      return;
     }
 
 
-    // -------------------------------------------
-    // 成功
-    // -------------------------------------------
+    // ファイルサイズチェック
+    if (file.size > MAX_FILE_SIZE) {
 
-    statusMessage.textContent = "";
+      alert(
+        "画像サイズは10MB以下にしてください。"
+      );
 
-    alert(
-      "投稿が完了しました！\n\n" +
-      "管理者による確認後、ギャラリーに掲載されます。"
-    );
+      photoFileInput.value = "";
 
+      previewBox.classList.add("hidden");
+      previewImg.src = "";
 
-    // フォームリセット
-
-    uploadForm.reset();
-
-    previewBox.classList.add("hidden");
+      return;
+    }
 
 
-  } catch (error) {
+    // プレビュー表示
+    const objectUrl =
+      URL.createObjectURL(file);
 
-    console.error(
-      "アップロードエラー:",
-      error
-    );
+    previewImg.src = objectUrl;
 
-    statusMessage.textContent = "";
-
-    alert(
-      "アップロードに失敗しました:\n" +
-      error.message
-    );
+    previewBox.classList.remove("hidden");
+  }
+);
 
 
-  } finally {
+// ==================================================
+// 投稿処理
+// ==================================================
 
-    submitBtn.disabled = false;
+uploadForm.addEventListener(
+  "submit",
+  async (event) => {
 
+    event.preventDefault();
+
+    message.textContent = "";
+
+
+    // ----------------------------------------------
+    // ログイン確認
+    // ----------------------------------------------
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+
+      alert(
+        "写真を投稿するにはDiscordでログインしてください。"
+      );
+
+      return;
+    }
+
+
+    // ----------------------------------------------
+    // 入力値取得
+    // ----------------------------------------------
+
+    const file =
+      photoFileInput.files[0];
+
+    const title =
+      photoTitleInput.value.trim();
+
+
+    // ----------------------------------------------
+    // 入力チェック
+    // ----------------------------------------------
+
+    if (!file) {
+
+      alert("写真を選択してください。");
+
+      return;
+    }
+
+    if (!title) {
+
+      alert("写真タイトルを入力してください。");
+
+      return;
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+
+      alert(
+        "JPEG・PNG・WebP形式の画像を選択してください。"
+      );
+
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+
+      alert(
+        "画像サイズは10MB以下にしてください。"
+      );
+
+      return;
+    }
+
+
+    // ----------------------------------------------
+    // ボタンを無効化
+    // ----------------------------------------------
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "投稿中...";
+
+    message.textContent =
+      "写真をアップロードしています。";
+
+
+    try {
+
+      // --------------------------------------------
+      // ファイル名を安全に作成
+      // --------------------------------------------
+
+      const extension =
+        getFileExtension(file);
+
+      const fileName =
+        `${crypto.randomUUID()}.${extension}`;
+
+
+      // ユーザーごとのフォルダに保存
+      const filePath =
+        `${user.id}/${fileName}`;
+
+
+      // --------------------------------------------
+      // Storageへ画像アップロード
+      // --------------------------------------------
+
+      const {
+        error: uploadError
+      } = await supabase.storage
+        .from("gallery")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
+
+
+      if (uploadError) {
+
+        throw new Error(
+          "画像のアップロードに失敗しました。\n" +
+          uploadError.message
+        );
+      }
+
+
+      // --------------------------------------------
+      // 公開URLを取得
+      // --------------------------------------------
+
+      const {
+        data: publicUrlData
+      } = supabase.storage
+        .from("gallery")
+        .getPublicUrl(filePath);
+
+
+      const imageUrl =
+        publicUrlData.publicUrl;
+
+
+      // --------------------------------------------
+      // Discord表示名
+      // --------------------------------------------
+
+      const metadata =
+        user.user_metadata || {};
+
+      const authorName =
+        metadata.full_name ||
+        metadata.name ||
+        metadata.user_name ||
+        metadata.preferred_username ||
+        user.email ||
+        "Discordユーザー";
+
+
+      // --------------------------------------------
+      // photosテーブルへ登録
+      // --------------------------------------------
+
+      const {
+        error: insertError
+      } = await supabase
+        .from("photos")
+        .insert({
+          title: title,
+          image_url: imageUrl,
+          author_name: authorName,
+          author_id: user.id,
+          approved: false
+        });
+
+
+      if (insertError) {
+
+        // DB登録に失敗した場合、
+        // アップロード済み画像を削除しておく
+        await supabase.storage
+          .from("gallery")
+          .remove([filePath]);
+
+        throw new Error(
+          "投稿情報の保存に失敗しました。\n" +
+          insertError.message
+        );
+      }
+
+
+      // --------------------------------------------
+      // 投稿成功
+      // --------------------------------------------
+
+      message.textContent =
+        "投稿しました！\n" +
+        "管理者の確認後、ギャラリーに掲載されます。";
+
+      uploadForm.reset();
+
+      previewBox.classList.add("hidden");
+      previewImg.src = "";
+
+    } catch (error) {
+
+      console.error(error);
+
+      message.textContent =
+        error.message ||
+        "投稿中にエラーが発生しました。";
+
+    } finally {
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = "投稿する";
+    }
+  }
+);
+
+
+// ==================================================
+// 拡張子取得
+// ==================================================
+
+function getFileExtension(file) {
+
+  if (file.type === "image/jpeg") {
+    return "jpg";
   }
 
-});
+  if (file.type === "image/png") {
+    return "png";
+  }
+
+  if (file.type === "image/webp") {
+    return "webp";
+  }
+
+  return "jpg";
+}
