@@ -1,141 +1,257 @@
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
 }
 
 body {
-  background-color: #f4f6f8;
-  color: #333;
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
+  margin: 0;
+  background: #f5f6f8;
+  color: #222;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans",
+    Meiryo,
+    sans-serif;
 }
 
 .container {
-  width: 100%;
-  max-width: 500px;
+  width: min(680px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 60px;
 }
 
-h1 {
-  font-size: 22px;
+.header {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 32px;
 }
 
-.subtitle {
-  font-size: 14px;
-  text-align: center;
+.header h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.header p {
+  margin: 0;
   color: #666;
-  margin-bottom: 24px;
+  font-size: 14px;
 }
+
+
+/* カード */
 
 .card {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.card p {
+  line-height: 1.7;
+}
+
+
+/* 非表示 */
 
 .hidden {
   display: none !important;
 }
 
-/* ボタンの共通スタイル */
-.btn {
+
+/* ユーザー情報 */
+
+.user-card {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  font-size: 15px;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
-
-.btn:disabled {
-  background-color: #ccc !important;
-  cursor: not-allowed;
-}
-
-/* Discord風ボタン */
-.btn-discord {
-  background-color: #5865F2;
-  color: white;
-  margin-top: 16px;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-text {
-  background: none;
-  border: none;
-  color: #d9534f;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 13px;
-}
-
-/* ユーザー表示プロファイル */
-.user-profile {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #eee;
+  gap: 16px;
+
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
+
+.user-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #777;
+  font-size: 12px;
+}
+
+#user-display-name {
+  font-size: 15px;
+}
+
 
 /* フォーム */
+
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .form-group label {
   display: block;
-  font-size: 13px;
-  font-weight: bold;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
-.form-group input[type="text"],
-.form-group input[type="file"] {
+input[type="file"] {
   width: 100%;
-  padding: 10px;
-  font-size: 14px;
+  padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 10px;
+  background: #fafafa;
 }
+
+input[type="text"] {
+  width: 100%;
+  padding: 13px 14px;
+
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+
+  font-size: 16px;
+  outline: none;
+}
+
+input[type="text"]:focus {
+  border-color: #666;
+}
+
+.help-text {
+  margin: 8px 0 0 !important;
+  color: #888;
+  font-size: 12px;
+}
+
 
 /* プレビュー */
-.preview-box {
-  margin-bottom: 16px;
-  text-align: center;
+
+.preview {
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #eee;
 }
 
-.preview-box img {
-  max-width: 100%;
-  max-height: 200px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+.preview img {
+  display: block;
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
 }
 
-.status-message {
+
+/* ボタン */
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 18px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+
+/* Discordログイン */
+
+.discord-button {
+  width: 100%;
   margin-top: 12px;
+
+  background: #5865f2;
+  color: #fff;
+}
+
+
+/* 投稿ボタン */
+
+.submit-button {
+  width: 100%;
+
+  background: #222;
+  color: #fff;
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* ログアウト */
+
+.logout-button {
+  padding: 9px 13px;
+
+  background: #eee;
+  color: #333;
+
   font-size: 13px;
-  text-align: center;
-  color: #007bff;
+}
+
+
+/* メッセージ */
+
+.message {
+  margin-top: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.message:empty {
+  display: none;
+}
+
+
+/* スマホ */
+
+@media (max-width: 600px) {
+
+  .container {
+    width: calc(100% - 24px);
+    padding: 24px 0 40px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .card {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .user-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .logout-button {
+    width: 100%;
+  }
+
 }
