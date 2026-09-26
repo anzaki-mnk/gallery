@@ -1,164 +1,413 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-  getAuth, 
-  signInWithPopup, 
-  OAuthProvider, 
-  onAuthStateChanged, 
-  signOut 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { 
-  getStorage, 
-  ref, 
-  uploadBytes, 
-  getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// 1. Firebaseの設定 (Firebase Console > プロジェクト設定 から取得)
-const firebaseConfig = {
-  apiKey: "AIzaSyBTP9c00yBtnNv-_uOgvFqZLArXq7Gkn0E",
-  authDomain: "anzakicity-d2534.firebaseapp.com",
-  projectId: "anzakicity-d2534",
-  storageBucket: "anzakicity-d2534.appspot.com",
-  messagingSenderId: "80263721257",
-  appId: "1:80263721257:web:a2884a96f1c683b2e34738"
-};
+// ----------------------------------------------------
+// Supabase設定
+// ----------------------------------------------------
 
-// 2. 初期化
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const db = getFirestore(app);
+const SUPABASE_URL = "https://zuvxowdzzhotesdvorpm.supabase.co";
 
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZaVMrfAPNUSE9eprOwMG7w_OdmrQn9n";
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+// ----------------------------------------------------
 // DOM要素の取得
+// ----------------------------------------------------
+
 const loggedOutView = document.getElementById("logged-out-view");
 const loggedInView = document.getElementById("logged-in-view");
+
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
+
 const userDisplayName = document.getElementById("user-display-name");
+
 const uploadForm = document.getElementById("upload-form");
 const photoFileInput = document.getElementById("photo-file");
 const photoTitleInput = document.getElementById("photo-title");
+
 const previewBox = document.getElementById("image-preview");
 const previewImg = document.getElementById("preview-img");
+
 const submitBtn = document.getElementById("submit-btn");
 const statusMessage = document.getElementById("status-message");
 
+
+// ----------------------------------------------------
+// 現在のログインユーザー
+// ----------------------------------------------------
+
 let currentUser = null;
+
 
 // ----------------------------------------------------
 // A. ログイン状態の監視
 // ----------------------------------------------------
-onAuthStateChanged(auth, (user) => {
+
+async function checkUser() {
+
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
   currentUser = user;
+
+  updateLoginView(user);
+}
+
+
+// ----------------------------------------------------
+// ログイン画面 / ログイン後画面の切り替え
+// ----------------------------------------------------
+
+function updateLoginView(user) {
+
   if (user) {
-    // ログイン中の画面切り替え
-    userDisplayName.textContent = user.displayName || "Discordユーザー";
+
+    currentUser = user;
+
+    const displayName =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.user_metadata?.preferred_username ||
+      "Discordユーザー";
+
+    userDisplayName.textContent = displayName;
+
     loggedOutView.classList.add("hidden");
     loggedInView.classList.remove("hidden");
+
   } else {
-    // 未ログイン状態の画面切り替え
+
+    currentUser = null;
+
     loggedOutView.classList.remove("hidden");
     loggedInView.classList.add("hidden");
   }
-});
+}
+
 
 // ----------------------------------------------------
-// B. Discord ログイン処理 (OpenID Connect / OIDC)
+// Supabase Authの状態変化を監視
 // ----------------------------------------------------
+
+supabase.auth.onAuthStateChange((event, session) => {
+
+  const user = session?.user ?? null;
+
+  updateLoginView(user);
+
+});
+
+
+// 初回チェック
+checkUser();
+
+
+// ----------------------------------------------------
+// B. Discordログイン
+// ----------------------------------------------------
+
 loginBtn.addEventListener("click", async () => {
-  // 設定時のプロバイダID（oidc.discord または設定したプロバイダID）
-  const provider = new OAuthProvider('oidc.discord');
 
   try {
+
     statusMessage.textContent = "";
-    await signInWithPopup(auth, provider);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        redirectTo: "https://anzaki-mnk.github.io/gallery/"
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
   } catch (error) {
+
     console.error("ログインエラー:", error);
-    alert("ログインに失敗しました: " + error.message);
+
+    alert(
+      "ログインに失敗しました: " +
+      error.message
+    );
+
   }
+
 });
 
-// ログアウト処理
-logoutBtn.addEventListener("click", () => {
-  signOut(auth);
-});
 
 // ----------------------------------------------------
-// C. 画像ファイルが選択された時のプレビュー表示
+// ログアウト
 // ----------------------------------------------------
+
+logoutBtn.addEventListener("click", async () => {
+
+  try {
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+
+  } catch (error) {
+
+    console.error("ログアウトエラー:", error);
+
+    alert(
+      "ログアウトに失敗しました: " +
+      error.message
+    );
+
+  }
+
+});
+
+
+// ----------------------------------------------------
+// C. 画像プレビュー
+// ----------------------------------------------------
+
 photoFileInput.addEventListener("change", (e) => {
+
   const file = e.target.files[0];
+
   if (file) {
+
     const reader = new FileReader();
+
     reader.onload = (e) => {
+
       previewImg.src = e.target.result;
+
       previewBox.classList.remove("hidden");
+
     };
+
     reader.readAsDataURL(file);
+
   } else {
+
     previewBox.classList.add("hidden");
+
   }
+
 });
 
+
 // ----------------------------------------------------
-// D. 写真のアップロード ＆ DB登録処理
+// D. 写真アップロード ＆ DB登録
 // ----------------------------------------------------
+
 uploadForm.addEventListener("submit", async (e) => {
+
   e.preventDefault();
 
+
+  // ---------------------------------------------
+  // 入力値取得
+  // ---------------------------------------------
+
   const file = photoFileInput.files[0];
+
   const title = photoTitleInput.value.trim();
 
-  if (!file || !title || !currentUser) {
-    alert("必須項目を入力してください。");
+
+  // ---------------------------------------------
+  // ログイン確認
+  // ---------------------------------------------
+
+  if (!currentUser) {
+
+    alert("先にDiscordでログインしてください。");
+
     return;
   }
 
-  // ボタンを無効化して連打・重複送信を防止
+
+  // ---------------------------------------------
+  // 必須項目確認
+  // ---------------------------------------------
+
+  if (!file || !title) {
+
+    alert("写真とタイトルを入力してください。");
+
+    return;
+  }
+
+
+  // ---------------------------------------------
+  // ファイル形式確認
+  // ---------------------------------------------
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+
+    alert(
+      "JPEG、PNG、WebP形式の画像を選択してください。"
+    );
+
+    return;
+  }
+
+
+  // ---------------------------------------------
+  // ファイルサイズ確認
+  // ---------------------------------------------
+
+  if (file.size > 10 * 1024 * 1024) {
+
+    alert("画像サイズは10MB以下にしてください。");
+
+    return;
+  }
+
+
+  // ---------------------------------------------
+  // 二重送信防止
+  // ---------------------------------------------
+
   submitBtn.disabled = true;
+
   statusMessage.textContent = "画像を送信中...";
 
+
   try {
-    // 1. Cloud Storageに画像を保存 (ファイル名衝突防止のためタイムスタンプを付与)
-    const timestamp = Date.now();
-    const storagePath = `photos/\({currentUser.uid}/\){timestamp}_${file.name}`;
-    const storageRef = ref(storage, storagePath);
 
-    const uploadResult = await uploadBytes(storageRef, file);
-    // 画像の公開用URLを取得
-    const imageUrl = await getDownloadURL(uploadResult.ref);
+    // -------------------------------------------
+    // 1. Storageに画像をアップロード
+    // -------------------------------------------
 
-    statusMessage.textContent = "データをデータベースに記録中...";
+    const fileExtension =
+      file.name.split(".").pop().toLowerCase();
 
-    // 2. Cloud Firestore にメタデータを保存
-    await addDoc(collection(db, "photos"), {
-      title: title,
-      imageUrl: imageUrl,
-      authorName: currentUser.displayName,
-      authorUid: currentUser.uid,
-      status: "pending", // 管理者確認用 (デフォルトは「保留」)
-      createdAt: serverTimestamp()
-    });
+    const fileName =
+      `${Date.now()}_${crypto.randomUUID()}.${fileExtension}`;
 
-    // 成功時処理
+    const filePath =
+      `${currentUser.id}/${fileName}`;
+
+
+    const {
+      error: uploadError
+    } = await supabase.storage
+      .from("gallery")
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: false
+      });
+
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+
+    // -------------------------------------------
+    // 2. 公開URLを取得
+    // -------------------------------------------
+
+    const {
+      data: publicUrlData
+    } = supabase.storage
+      .from("gallery")
+      .getPublicUrl(filePath);
+
+
+    const imageUrl =
+      publicUrlData.publicUrl;
+
+
+    // -------------------------------------------
+    // 3. photosテーブルに保存
+    // -------------------------------------------
+
+    statusMessage.textContent =
+      "投稿情報を登録中...";
+
+
+    const displayName =
+      currentUser.user_metadata?.full_name ||
+      currentUser.user_metadata?.name ||
+      currentUser.user_metadata?.preferred_username ||
+      "Discordユーザー";
+
+
+    const {
+      error: databaseError
+    } = await supabase
+      .from("photos")
+      .insert({
+
+        title: title,
+
+        image_url: imageUrl,
+
+        author_name: displayName,
+
+        author_id: currentUser.id,
+
+        approved: false
+
+      });
+
+
+    if (databaseError) {
+      throw databaseError;
+    }
+
+
+    // -------------------------------------------
+    // 成功
+    // -------------------------------------------
+
     statusMessage.textContent = "";
-    alert("投稿が完了しました！確認後にギャラリーへ掲載されます。");
+
+    alert(
+      "投稿が完了しました！\n\n" +
+      "管理者による確認後、ギャラリーに掲載されます。"
+    );
+
 
     // フォームリセット
+
     uploadForm.reset();
+
     previewBox.classList.add("hidden");
 
+
   } catch (error) {
-    console.error("アップロードエラー:", error);
+
+    console.error(
+      "アップロードエラー:",
+      error
+    );
+
     statusMessage.textContent = "";
-    alert("アップロードに失敗しました: " + error.message);
+
+    alert(
+      "アップロードに失敗しました:\n" +
+      error.message
+    );
+
+
   } finally {
+
     submitBtn.disabled = false;
+
   }
+
 });
