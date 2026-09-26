@@ -10,125 +10,159 @@
 </head>
 
 <body>
+  <div class="site-shell">
 
-  <main class="container">
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="./" aria-label="餡咲市 写真投稿トップ">
+          <img
+            src="https://anzaki-mnk.github.io/gallery/assets/logo_pt1-color.svg"
+            alt="餡咲市"
+          >
+        </a>
 
-    <header class="header">
-      <h1>餡咲市 写真投稿</h1>
-      <p>餡咲市の写真を投稿できます。</p>
+        <a
+          class="gallery-link"
+          href="https://anzaki-mnk.studio.site/gallery"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ギャラリーを見る
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </header>
 
+    <main class="container">
 
-    <!-- ログアウト状態 -->
-    <section id="logged-out-view" class="card">
+      <section class="hero">
+        <p class="eyebrow">ANZAKI CITY PHOTO GALLERY</p>
+        <h1>写真を投稿する</h1>
+        <p class="hero-text">
+          餡咲市で撮影した写真を投稿できます。<br>
+          投稿された写真は、管理者の確認後ギャラリーに掲載されます。
+        </p>
+      </section>
 
-      <h2>ログイン</h2>
+      <!-- ログアウト状態 -->
+      <section id="logged-out-view" class="card login-card">
 
-      <p>
-        写真を投稿するにはDiscordでログインしてください。
-      </p>
+        <div class="section-icon" aria-hidden="true">PHOTO</div>
 
-      <button id="login-btn" class="discord-button">
-        Discordでログイン
-      </button>
+        <h2>ログインしてください</h2>
 
-    </section>
+        <p>
+          写真を投稿するには、Discordアカウントでログインしてください。
+        </p>
 
-
-    <!-- ログイン状態 -->
-    <section id="logged-in-view" class="hidden">
-
-      <div class="user-card">
-
-        <div>
-          <span class="user-label">ログイン中</span>
-          <strong id="user-display-name"></strong>
-        </div>
-
-        <button id="logout-btn" class="logout-button">
-          ログアウト
+        <button id="login-btn" class="discord-button">
+          <span class="discord-mark" aria-hidden="true">◉</span>
+          Discordでログイン
         </button>
-
-      </div>
-
-
-      <!-- 投稿フォーム -->
-      <section class="card">
-
-        <h2>写真を投稿</h2>
-
-        <form id="upload-form">
-
-          <div class="form-group">
-
-            <label for="photo-file">
-              写真
-            </label>
-
-            <input
-              type="file"
-              id="photo-file"
-              accept="image/jpeg,image/png,image/webp"
-              required
-            >
-
-            <p class="help-text">
-              JPEG・PNG・WebP / 最大10MB
-            </p>
-
-          </div>
-
-
-          <!-- 画像プレビュー -->
-          <div id="image-preview" class="preview hidden">
-
-            <img
-              id="image-preview-img"
-              src=""
-              alt="写真プレビュー"
-            >
-
-          </div>
-
-
-          <div class="form-group">
-
-            <label for="photo-title">
-              写真タイトル
-            </label>
-
-            <input
-              type="text"
-              id="photo-title"
-              maxlength="100"
-              placeholder="例：餡咲駅を走る列車"
-              required
-            >
-
-          </div>
-
-
-          <button
-            type="submit"
-            id="submit-btn"
-            class="submit-button"
-          >
-            投稿する
-          </button>
-
-        </form>
-
-
-        <div id="message" class="message"></div>
 
       </section>
 
-    </section>
 
-  </main>
+      <!-- ログイン状態 -->
+      <section id="logged-in-view" class="hidden">
 
+        <div class="user-card">
+          <div class="user-info">
+            <span class="user-label">DISCORD ACCOUNT</span>
+            <strong id="user-display-name"></strong>
+          </div>
+
+          <button id="logout-btn" class="logout-button">
+            ログアウト
+          </button>
+        </div>
+
+
+        <!-- 投稿フォーム -->
+        <section class="card upload-card">
+
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">PHOTO SUBMISSION</p>
+              <h2>写真を投稿</h2>
+            </div>
+          </div>
+
+          <form id="upload-form">
+
+            <div class="form-group">
+              <label for="photo-file">
+                写真
+              </label>
+
+              <input
+                type="file"
+                id="photo-file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              >
+
+              <p class="help-text">
+                JPEG・PNG・WebP / 最大10MB
+              </p>
+            </div>
+
+
+            <!-- 画像プレビュー -->
+            <div id="image-preview" class="preview hidden">
+              <img
+                id="image-preview-img"
+                src=""
+                alt="写真プレビュー"
+              >
+            </div>
+
+
+            <div class="form-group">
+              <label for="photo-title">
+                写真タイトル
+              </label>
+
+              <input
+                type="text"
+                id="photo-title"
+                maxlength="100"
+                placeholder="例：餡咲駅を走る列車"
+                required
+              >
+            </div>
+
+
+            <button
+              type="submit"
+              id="submit-btn"
+              class="submit-button"
+            >
+              投稿する
+            </button>
+
+          </form>
+
+
+          <div id="message" class="message"></div>
+
+        </section>
+
+      </section>
+
+      <footer class="site-footer">
+        <a
+          href="https://anzaki-mnk.studio.site/gallery"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          餡咲市 写真ギャラリーへ
+        </a>
+      </footer>
+
+    </main>
+  </div>
 
   <script type="module" src="app.js"></script>
-
 </body>
 </html>
