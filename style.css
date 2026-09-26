@@ -2,10 +2,28 @@
   box-sizing: border-box;
 }
 
+:root {
+  --ink: #17202a;
+  --muted: #68717c;
+  --line: #e4e7eb;
+  --surface: #ffffff;
+  --bg: #f4f6f8;
+  --accent: #1d4ed8;
+  --accent-dark: #163da8;
+  --discord: #5865f2;
+}
+
+html {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  background: #f5f6f8;
-  color: #222;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(29, 78, 216, 0.07), transparent 38%),
+    var(--bg);
+  color: var(--ink);
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -16,55 +34,148 @@ body {
     sans-serif;
 }
 
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.site-shell {
+  min-height: 100vh;
+}
+
+/* ヘッダー */
+
+.site-header {
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+
+.header-inner {
+  width: min(920px, calc(100% - 32px));
+  min-height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  width: auto;
+  height: 38px;
+  max-width: 220px;
+}
+
+.gallery-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gallery-link span {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.gallery-link:hover {
+  color: var(--accent);
+}
+
+/* メイン */
+
 .container {
   width: min(680px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 40px 0 60px;
+  padding: 54px 0 42px;
 }
 
-.header {
+.hero {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 30px;
 }
 
-.header h1 {
-  margin: 0 0 10px;
-  font-size: 28px;
-  font-weight: 700;
+.eyebrow {
+  margin: 0 0 9px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
 }
 
-.header p {
+.hero h1 {
   margin: 0;
-  color: #666;
-  font-size: 14px;
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.25;
+  letter-spacing: -0.03em;
 }
 
+.hero-text {
+  margin: 15px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.9;
+}
 
 /* カード */
 
 .card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  background: var(--surface);
+  border: 1px solid rgba(228, 231, 235, 0.9);
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 10px 35px rgba(23, 32, 42, 0.06);
 }
 
 .card h2 {
-  margin: 0 0 12px;
-  font-size: 20px;
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.02em;
+}
+
+.login-card {
+  text-align: center;
+}
+
+.section-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #eef3ff;
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .card p {
-  line-height: 1.7;
+  line-height: 1.75;
 }
-
 
 /* 非表示 */
 
 .hidden {
   display: none !important;
 }
-
 
 /* ユーザー情報 */
 
@@ -75,24 +186,45 @@ body {
   gap: 16px;
 
   background: #fff;
-  border-radius: 16px;
-  padding: 18px 20px;
-  margin-bottom: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 15px 17px;
+  margin-bottom: 16px;
 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 22px rgba(23, 32, 42, 0.04);
+}
+
+.user-info {
+  min-width: 0;
 }
 
 .user-label {
   display: block;
   margin-bottom: 4px;
-  color: #777;
-  font-size: 12px;
+  color: #8a929c;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
 }
 
 #user-display-name {
-  font-size: 15px;
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* 投稿カード */
+
+.card-heading {
+  margin-bottom: 26px;
+}
+
+.card-heading h2 {
+  margin-top: 0;
+}
 
 /* フォーム */
 
@@ -102,98 +234,118 @@ body {
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 input[type="file"] {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background: #fafafa;
+  border: 1px dashed #cbd1d8;
+  border-radius: 11px;
+  background: #fafbfc;
+  color: #555;
+  cursor: pointer;
+}
+
+input[type="file"]:hover {
+  border-color: #aab3be;
 }
 
 input[type="text"] {
   width: 100%;
   padding: 13px 14px;
-
-  border: 1px solid #d8d8d8;
-  border-radius: 10px;
-
-  font-size: 16px;
+  border: 1px solid #d8dde3;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 15px;
   outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input[type="text"]::placeholder {
+  color: #a0a7af;
 }
 
 input[type="text"]:focus {
-  border-color: #666;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
 }
 
 .help-text {
   margin: 8px 0 0 !important;
-  color: #888;
-  font-size: 12px;
+  color: #8a929c;
+  font-size: 11px;
 }
-
 
 /* プレビュー */
 
 .preview {
-  margin-bottom: 24px;
+  margin: -2px 0 24px;
   overflow: hidden;
-  border-radius: 12px;
-  background: #eee;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #eef0f2;
 }
 
 .preview img {
   display: block;
   width: 100%;
-  max-height: 400px;
+  max-height: 430px;
   object-fit: contain;
 }
-
 
 /* ボタン */
 
 button {
   border: 0;
-  border-radius: 10px;
+  border-radius: 11px;
   padding: 13px 18px;
-
-  font-size: 15px;
-  font-weight: 600;
-
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: opacity 0.2s, transform 0.1s, background 0.2s;
 }
 
 button:hover {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 button:active {
   transform: translateY(1px);
 }
 
-
 /* Discordログイン */
 
 .discord-button {
   width: 100%;
-  margin-top: 12px;
-
-  background: #5865f2;
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: var(--discord);
   color: #fff;
 }
 
+.discord-mark {
+  font-size: 15px;
+  line-height: 1;
+}
 
 /* 投稿ボタン */
 
 .submit-button {
   width: 100%;
-
-  background: #222;
+  margin-top: 2px;
+  background: var(--ink);
   color: #fff;
+}
+
+.submit-button:hover {
+  background: #0e151c;
 }
 
 .submit-button:disabled {
@@ -201,57 +353,97 @@ button:active {
   cursor: not-allowed;
 }
 
-
 /* ログアウト */
 
 .logout-button {
-  padding: 9px 13px;
-
-  background: #eee;
-  color: #333;
-
-  font-size: 13px;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: #f0f2f4;
+  color: #424a53;
+  font-size: 12px;
 }
 
+.logout-button:hover {
+  background: #e6e9ed;
+}
 
 /* メッセージ */
 
 .message {
   margin-top: 18px;
-  font-size: 14px;
-  line-height: 1.6;
+  padding: 0 2px;
+  color: #4b5560;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-line;
 }
 
 .message:empty {
   display: none;
 }
 
+/* フッター */
+
+.site-footer {
+  padding-top: 25px;
+  text-align: center;
+}
+
+.site-footer a {
+  color: #68717c;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
 
 /* スマホ */
 
 @media (max-width: 600px) {
+  .header-inner {
+    width: calc(100% - 24px);
+    min-height: 64px;
+  }
+
+  .brand img {
+    height: 32px;
+    max-width: 180px;
+  }
+
+  .gallery-link {
+    font-size: 11px;
+  }
 
   .container {
     width: calc(100% - 24px);
-    padding: 24px 0 40px;
+    padding: 38px 0 32px;
   }
 
-  .header h1 {
-    font-size: 24px;
+  .hero {
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .hero-text {
+    font-size: 13px;
   }
 
   .card {
-    padding: 20px;
-    border-radius: 14px;
+    padding: 22px 18px;
+    border-radius: 15px;
   }
 
   .user-card {
     align-items: flex-start;
-    flex-direction: column;
   }
 
   .logout-button {
-    width: 100%;
+    padding: 8px 10px;
   }
-
 }
