@@ -426,7 +426,7 @@ uploadForm.addEventListener(
           image_url: imageUrl,
           author_name: authorName,
           author_id: user.id,
-          approved: false
+          approved: true
         });
 
 
@@ -451,7 +451,7 @@ uploadForm.addEventListener(
 
       message.textContent =
         "投稿しました！\n" +
-        "管理者の確認後、ギャラリーに掲載されます。";
+        "ギャラリーに掲載されました。";
 
       uploadForm.reset();
 
